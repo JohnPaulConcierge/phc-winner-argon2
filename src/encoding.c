@@ -158,7 +158,7 @@ static size_t to_base64(char *dst, size_t dst_len, const void *src,
  * points to the first non-Base64 character in the source stream, which
  * may be the terminating zero.
  */
-static const char *from_base64(void *dst, size_t *dst_len, const char *src) {
+const char *from_base64(void *dst, size_t *dst_len, const char *src) {
     size_t len;
     unsigned char *buf;
     unsigned acc, acc_len;

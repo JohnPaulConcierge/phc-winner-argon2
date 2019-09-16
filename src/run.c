@@ -25,6 +25,7 @@
 
 #include "argon2.h"
 #include "core.h"
+#include "encoding.h"
 
 #define T_COST_DEF 3
 #define LOG_M_COST_DEF 12 /* 2^12 = 4 MiB */
@@ -81,7 +82,7 @@ Runs Argon2 with certain inputs and parameters, inputs not cleared. Prints the
 Base64-encoded hash string
 @out output array with at least 32 bytes allocated
 @pwd NULL-terminated string, presumably from argv[]
-@salt salt array
+@salt salt array, base64encoded
 @t_cost number of iterations
 @m_cost amount of requested memory in KB
 @lanes amount of requested parallelism
@@ -100,6 +101,7 @@ static void run(uint32_t outlen, char *pwd, size_t pwdlen, char *salt, uint32_t 
     unsigned char * out = NULL;
     char * encoded = NULL;
 
+
     start_time = clock();
 
     if (!pwd) {
@@ -111,7 +113,9 @@ static void run(uint32_t outlen, char *pwd, size_t pwdlen, char *salt, uint32_t 
         fatal("salt missing");
     }
 
-    saltlen = strlen(salt);
+    saltlen = b64len(strlen(salt));
+    char decodedSalt[saltlen];
+    from_base64(decodedSalt, &saltlen, salt);
     if(UINT32_MAX < saltlen) {
         fatal("salt is too long");
     }
@@ -131,7 +135,7 @@ static void run(uint32_t outlen, char *pwd, size_t pwdlen, char *salt, uint32_t 
         fatal("could not allocate memory for hash");
     }
 
-    result = argon2_hash(t_cost, m_cost, threads, pwd, pwdlen, salt, saltlen,
+    result = argon2_hash(t_cost, m_cost, threads, pwd, pwdlen, decodedSalt, saltlen,
                          out, outlen, encoded, encodedlen, type,
                          version);
     if (result != ARGON2_OK)

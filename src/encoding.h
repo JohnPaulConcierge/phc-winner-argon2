@@ -54,4 +54,6 @@ size_t b64len(uint32_t len);
 /* Returns the length of the encoded number num */
 size_t numlen(uint32_t num);
 
+const char *from_base64(void *dst, size_t *dst_len, const char *src);
+
 #endif
